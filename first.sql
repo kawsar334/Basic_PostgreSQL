@@ -1,30 +1,26 @@
+
+
+-- creating  a databse ----------conservation_db---------------
 CREATE DATABASE conservation_db
 
 
-
+-- create rangers table ----------------------------
 CREATE Table rangers (
     ranger_id SERIAL NOT NULL PRIMARY KEY,
-    name VARCHAR(50),
+    name VARCHAR(55),
     region TEXT NOT NULL
 );
 
-INSERT INTO
-    rangers (name, region)VALUES ('Carol King', 'Mountain Range'),('Bob White', 'River Delta'),('Alice Green', 'Northern Hills' )
-    
- 
--- species table
- CREATE Table species (
+
+--create  species table
+CREATE Table species (
     species_id SERIAL NOT NULL PRIMARY KEY,
     common_name TEXT NOT null,
-    scientific_name VARCHAR(50),
+    scientific_name VARCHAR(55),
     discovery_date TIMESTAMP,
     conservation_status VARCHAR(100)
 )
 
-INSERT INTO
-    species (common_name,scientific_name,discovery_date,conservation_status)
-VALUES ('Snow Leopard','Panthera uncia','1775-01-01','Endangered'),('Bengal Tiger','Panthera tigris tigris','1758-01-01','Endangered'),('Red Panda','Ailurus fulgens','1825-01-01','Vulnerable'),('Asiatic Elephant','Elephas maximus indicus','1758-01-01','Endangered')
-  
 
 --=============  sightings table==================
 CREATE Table sightings (
@@ -38,31 +34,44 @@ CREATE Table sightings (
     FOREIGN KEY (species_id) REFERENCES species (species_id)
 );
 
-
--- insert intoo sightings--------=========================
+-- insert dummy data into rangers table-----
 INSERT INTO
-    sightings (ranger_id,species_id,location,sighting_time,notes)VALUES (1,1,'Peak Ridge','2024-05-10 07:45:00','Camera trap image captured'),(2,2,'Bankwood Area','2024-05-12 16:20:00','Juvenile seen'),(3,3,'Bamboo Grove East','2024-05-15 09:10:00','Feeding observed'),(1,2,'Snowfall Pass','2024-05-18 18:30:00',NULL);
+    rangers (name, region)VALUES ('Carol King', 'Mountain Range'),('Bob White', 'River Delta'),('Alice Green', 'Northern Hills' )
+    
+ 
 
---* * * * * * * * * * * * * * * * * * * * * * * * * *problem-01
+-- insert dummy data in to  species
+INSERT INTO
+    species (common_name,scientific_name,discovery_date,conservation_status)
+VALUES ('Snow Leopard','Panthera uncia','1775-01-01','Endangered'),('Bengal Tiger','Panthera tigris tigris','1758-01-01','Endangered'),('Red Panda','Ailurus fulgens','1825-01-01','Vulnerable'),('Asiatic Elephant','Elephas maximus indicus','1758-01-01','Endangered')
+   
+
+
+
+-- insert dummy data intoo sightings-----
+INSERT INTO 
+sightings (ranger_id,species_id,location,sighting_time,notes)VALUES (1,1,'Peak Ridge','2024-05-10 07:45:00','Camera trap image captured'),(2,2,'Bankwood Area','2024-05-12 16:20:00','Juvenile seen'),(3,3,'Bamboo Grove East','2024-05-15 09:10:00','Feeding observed'),(1,2,'Snowfall Pass','2024-05-18 18:30:00',NULL);
+
+--*problem-01______Insert A ranger 'Derek Fox'
 INSERT INTO
     rangers (name, region)
 VALUES ('Derek Fox', 'Coastal Plains');
 
---* * * * * * * * * * * * * * * * * * * * * * * * * * problem-02
+-- problem-02 Count the number of unique species sighted
 SELECT count(DISTINCT common_name) as unique_species_count
 FROM species;
 
---* * * * * * * * * * * * * * * * * * * * * * * * * * problem-03
+-- problem-03_____Find all sightings where location contains the word 'Pass'
 SELECT * FROM sightings WHERE location ILIKE '%Pass%';
 
---* * * * * * * * * * * * * * * * * * * * * * * * * * problem-04
+-- problem-04____ Show total number of sightings made by each ranger
 SELECT name, count(sighting_id) as total_sightings
 FROM rangers
     join sightings ON rangers.ranger_id = sightings.ranger_id
 GROUP BY
     name;
 
---* * * * * * * * * * * * * * * * * * * * * * * * * * problem-05
+-- problem-05____List species that have not been sighted yet
 SELECT common_name
 FROM species
 WHERE
@@ -72,7 +81,7 @@ WHERE
         FROM sightings
     );
 
---* * * * * * * * * * * * * * * * * * * * * * * * * * problem-06
+-- problem-06__Show the latest 2 sightings with species name, time, and ranger name
 SELECT common_name, sighting_time, name
 FROM
     sightings
@@ -81,14 +90,14 @@ FROM
 ORDER BY sighting_time DESC
 LIMIT 2;
 
---* * * * * * * * * * * * * * * * * * * * * * * * * * problem- 07
+-- problem- 07__Update conservation status to 'Historic' for species discovered before 1800
 UPDATE species
 SET
     conservation_status = 'Historic'
 WHERE
     discovery_date < '1800-01-01';
 
---* * * * * * * * * * * * * * * * * * * * * * * * * * problem-08
+-- problem-08____________Classify sightings into Morning, Afternoon, and Evening based on time
 SELECT
     extract(
         HOUR
@@ -107,7 +116,7 @@ SELECT
     END as time_of_day
 FROM sightings;
 
---* * * * * * * * * * * * * * * * * * * * * * * * * * problem-09
+-- problem-09____Delete rangers who have no recorded sightings
 DELETE FROM rangers
 WHERE
     ranger_id NOT IN (
@@ -115,6 +124,9 @@ WHERE
             ranger_id
         FROM sightings
     );
+
+
+    -- ____________Verification queries______________
 
 SELECT * FROM rangers;
 
